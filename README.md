@@ -119,13 +119,12 @@ docker build -t tftp-image .
 
 ## Automated Updates
 
-This repository uses Renovate to automatically update the base Debian image digest. When the base image is updated:
+This repository uses Renovate to automatically update dependencies. It runs daily before 5am and:
 
-1. Renovate detects the new digest
-2. Opens a PR with the updated Dockerfile
-3. GitHub Actions builds and tests the image
-4. If configured, auto-merges after 3 days
-5. Pushes the new image with `latest` tag
+1. Detects updates to the base Debian image digest and GitHub Actions
+2. Opens PRs with the updated digests
+3. Auto-merges Docker digest updates after tests pass
+4. Pushes the new image with `latest` tag
 
 ## Architecture Support
 

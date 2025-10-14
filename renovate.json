@@ -1,27 +1,15 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended",
     "docker:pinDigests",
     "helpers:pinGitHubActionDigests"
   ],
+  "schedule": ["before 5am"],
   "packageRules": [
     {
       "matchDatasources": ["docker"],
       "matchUpdateTypes": ["digest"],
-      "automerge": true,
-      "automergeType": "branch",
-      "minimumReleaseAge": "3 days"
-    },
-    {
-      "matchManagers": ["dockerfile"],
-      "matchPackageNames": ["debian"],
-      "enabled": true
+      "automerge": true
     }
-  ],
-  "schedule": ["after 10pm every weekday", "before 5am every weekday", "every weekend"],
-  "timezone": "America/New_York",
-  "labels": ["dependencies"],
-  "prConcurrentLimit": 5,
-  "prHourlyLimit": 2
+  ]
 }
