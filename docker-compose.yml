@@ -8,8 +8,7 @@ services:
     volumes:
       - ./tftp:/tftp
     environment:
-      TFTP_OPTIONS: "--secure --create --verbosity 2"
-      TFTP_BLOCKSIZE: "1468"
+      TFTP_OPTIONS: "--create --verbosity 2"
     healthcheck:
       test: ["CMD-SHELL", "test -f /tftp/pxelinux.cfg/default"]
       interval: 2s

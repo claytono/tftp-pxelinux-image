@@ -27,16 +27,19 @@ docker run -d \
 |----------|---------|-------------|
 | `TFTP_DIRECTORY` | `/tftp` | Root directory for TFTP files |
 | `TFTP_USERNAME` | `tftp` | Username for the TFTP daemon |
-| `TFTP_BLOCKSIZE` | `1468` | Maximum block size for transfers |
-| `TFTP_OPTIONS` | `--secure` | Additional tftpd-hpa options |
+| `TFTP_OPTIONS` | | Additional tftpd-hpa options to append to defaults |
+| `TFTP_ARGS` | | Complete tftpd arguments (replaces all defaults) |
 
-### Common TFTP Options
+### Default Arguments
 
-- `--secure` - Change root directory on startup (recommended)
-- `--create` - Allow new files to be created
-- `--verbosity 4` - Increase logging verbosity (0-4)
-- `--permissive` - Perform no additional permissions checks
-- `--umask 022` - Set file creation mask
+By default, tftpd is started with:
+- `--foreground` - Run in foreground
+- `--user tftp` - Run as tftp user
+- `--address 0.0.0.0:69` - Listen on all interfaces
+- `--port-range 69:69` - Use port 69 only
+- `--secure` - Change root directory on startup
+
+Use `TFTP_OPTIONS` to add additional options to the defaults, or `TFTP_ARGS` to completely replace all arguments. See the [tftpd(8) man page](https://manpages.debian.org/testing/tftpd-hpa/tftpd.8.en.html) for all available options.
 
 ### Examples
 
@@ -46,7 +49,7 @@ docker run -d \
   --name tftp \
   -p 69:69/udp \
   -v /path/to/tftp/files:/tftp \
-  -e TFTP_OPTIONS="--secure --create --verbosity 4" \
+  -e TFTP_OPTIONS="--create --verbosity 4" \
   ghcr.io/claytono/tftp-pxelinux-image:latest
 ```
 
@@ -57,7 +60,17 @@ docker run -d \
   -p 69:69/udp \
   -v /path/to/tftp/files:/data \
   -e TFTP_DIRECTORY=/data \
-  -e TFTP_BLOCKSIZE=8192 \
+  -e TFTP_OPTIONS="--blocksize 8192" \
+  ghcr.io/claytono/tftp-pxelinux-image:latest
+```
+
+**Completely custom arguments:**
+```bash
+docker run -d \
+  --name tftp \
+  -p 69:69/udp \
+  -v /path/to/tftp/files:/tftp \
+  -e TFTP_ARGS="--foreground --user tftp --address 0.0.0.0:69 --create --verbosity 4 /tftp" \
   ghcr.io/claytono/tftp-pxelinux-image:latest
 ```
 
@@ -76,7 +89,7 @@ services:
     volumes:
       - ./tftp:/tftp
     environment:
-      TFTP_OPTIONS: "--secure --create --verbosity 2"
+      TFTP_OPTIONS: "--create --verbosity 2"
 ```
 
 ## PXE Boot Setup
@@ -119,13 +132,12 @@ docker build -t tftp-image .
 
 ## Automated Updates
 
-This repository uses Renovate to automatically update the base Debian image digest. When the base image is updated:
+This repository uses Renovate to automatically update dependencies daily:
 
-1. Renovate detects the new digest
-2. Opens a PR with the updated Dockerfile
-3. GitHub Actions builds and tests the image
-4. If configured, auto-merges after 3 days
-5. Pushes the new image with `latest` tag
+1. Detects updates to the base Debian image digest and GitHub Actions
+2. Opens PRs with the updated digests
+3. Auto-merges Docker digest updates after tests pass
+4. Pushes the new image with `latest` tag
 
 ## Architecture Support
 
