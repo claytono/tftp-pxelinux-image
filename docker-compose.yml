@@ -1,0 +1,18 @@
+services:
+  tftp:
+    build: .
+    container_name: tftp
+    restart: unless-stopped
+    ports:
+      - "69:69/udp"
+    volumes:
+      - ./tftp:/tftp
+    environment:
+      TFTP_OPTIONS: "--secure --create --verbosity 2"
+      TFTP_BLOCKSIZE: "1468"
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /tftp/pxelinux.cfg/default"]
+      interval: 2s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
