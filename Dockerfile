@@ -1,5 +1,5 @@
-# syntax=docker/dockerfile:1
-FROM debian:trixie-slim
+# syntax=docker/dockerfile:1@sha256:b6afd42430b15f2d2a4c5a02b919e98a525b785b1aaff16747d2f623364e39b6
+FROM debian:trixie-slim@sha256:1caf1c703c8f7e15dcf2e7769b35000c764e6f50e4d7401c355fb0248f3ddfdb
 
 # Install tftpd-hpa and pxelinux
 RUN apt-get update && \
