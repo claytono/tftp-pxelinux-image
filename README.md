@@ -27,16 +27,26 @@ docker run -d \
 |----------|---------|-------------|
 | `TFTP_DIRECTORY` | `/tftp` | Root directory for TFTP files |
 | `TFTP_USERNAME` | `tftp` | Username for the TFTP daemon |
-| `TFTP_BLOCKSIZE` | `1468` | Maximum block size for transfers |
-| `TFTP_OPTIONS` | `--secure` | Additional tftpd-hpa options |
+| `TFTP_OPTIONS` | | Additional tftpd-hpa options to append to defaults |
+| `TFTP_ARGS` | | Complete tftpd arguments (replaces all defaults) |
+
+### Default Arguments
+
+By default, tftpd is started with:
+- `--foreground` - Run in foreground
+- `--user tftp` - Run as tftp user
+- `--address 0.0.0.0:69` - Listen on all interfaces
+- `--port-range 69:69` - Use port 69 only
+- `--secure` - Change root directory on startup
 
 ### Common TFTP Options
 
-- `--secure` - Change root directory on startup (recommended)
+Use `TFTP_OPTIONS` to add these to the defaults:
 - `--create` - Allow new files to be created
 - `--verbosity 4` - Increase logging verbosity (0-4)
 - `--permissive` - Perform no additional permissions checks
 - `--umask 022` - Set file creation mask
+- `--blocksize 8192` - Set maximum block size
 
 ### Examples
 
@@ -46,7 +56,7 @@ docker run -d \
   --name tftp \
   -p 69:69/udp \
   -v /path/to/tftp/files:/tftp \
-  -e TFTP_OPTIONS="--secure --create --verbosity 4" \
+  -e TFTP_OPTIONS="--create --verbosity 4" \
   ghcr.io/claytono/tftp-pxelinux-image:latest
 ```
 
@@ -57,7 +67,17 @@ docker run -d \
   -p 69:69/udp \
   -v /path/to/tftp/files:/data \
   -e TFTP_DIRECTORY=/data \
-  -e TFTP_BLOCKSIZE=8192 \
+  -e TFTP_OPTIONS="--blocksize 8192" \
+  ghcr.io/claytono/tftp-pxelinux-image:latest
+```
+
+**Completely custom arguments:**
+```bash
+docker run -d \
+  --name tftp \
+  -p 69:69/udp \
+  -v /path/to/tftp/files:/tftp \
+  -e TFTP_ARGS="--foreground --user tftp --address 0.0.0.0:69 --create --verbosity 4 /tftp" \
   ghcr.io/claytono/tftp-pxelinux-image:latest
 ```
 
@@ -76,7 +96,7 @@ services:
     volumes:
       - ./tftp:/tftp
     environment:
-      TFTP_OPTIONS: "--secure --create --verbosity 2"
+      TFTP_OPTIONS: "--create --verbosity 2"
 ```
 
 ## PXE Boot Setup
